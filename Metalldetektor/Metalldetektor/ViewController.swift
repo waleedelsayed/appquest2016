@@ -6,31 +6,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var strengthIndicator: UIProgressView!
     let locationManager = CLLocationManager()
     
+    @IBOutlet weak var startDetector: UIButton!
+    @IBOutlet weak var stopDetector: UIButton!
+    @IBOutlet weak var logSolution: UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager.headingFilter = kCLHeadingFilterNone
         locationManager.delegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        locationManager.startUpdatingHeading()
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(_:)), name: .UIApplicationDidBecomeActive, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive(_:)), name: .UIApplicationWillResignActive, object: nil)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        locationManager.stopUpdatingHeading()
-        NotificationCenter.default.removeObserver(self, name: .UIApplicationDidBecomeActive, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .UIApplicationWillResignActive, object: nil)
-    }
-    
-    func applicationDidBecomeActive(_ notification: Notification) {
-        locationManager.startUpdatingHeading()
-    }
-    
-    func applicationWillResignActive(_ notification: Notification) {
         locationManager.stopUpdatingHeading()
     }
     
@@ -45,6 +28,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         let magnitudeRatio = magnitude / maxMagnitude
         strengthLabel.text = String(format: "%.1f", magnitude)
         strengthIndicator.progress = Float(magnitudeRatio)
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -58,7 +42,36 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    @IBAction func logSolution(_ sender: AnyObject) {
+    @IBAction func startDetector(_ sender: UIButton) {
+        locationManager.startUpdatingHeading()
+        
+        stopDetector.isEnabled = true
+        stopDetector.setTitleColor(UIColor.blue, for: .normal)
+        
+        logSolution.isEnabled = true
+        logSolution.setTitleColor(UIColor.blue, for: .normal)
+        
+        startDetector.isEnabled = false
+        startDetector.setTitleColor(UIColor.lightGray, for: .disabled)
+    }
+    
+    @IBAction func stopDetector(_ sender: UIButton) {
+        locationManager.stopUpdatingHeading()
+        strengthIndicator.progress = 0.0
+        strengthLabel.text = String(strengthIndicator.progress)
+        
+        startDetector.isEnabled = true
+        startDetector.setTitleColor(UIColor.blue, for: .normal)
+        
+        logSolution.isEnabled = false
+        logSolution.setTitleColor(UIColor.lightGray, for: .disabled)
+        
+        stopDetector.isEnabled = false
+        stopDetector.setTitleColor(UIColor.lightGray, for: .disabled)
+        
+    }
+    
+    @IBAction func logSolution(_ sender: UIButton) {
         var json = [String: Any]()
         json["task"] = "Metalldetektor"
         
